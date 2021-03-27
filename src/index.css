@@ -12,6 +12,10 @@ body {
   font-size: @apply text-sm;
 }
 
+body.modal-active {
+  overflow-y: hidden !important;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
