@@ -37,15 +37,15 @@ function Navigation() {
                 </div>
 
                 <aside className={ sidebarClass + ' transform fixed md:relative top-0 right-0 w-full h-full md:h-auto bg-white md:bg-transparent ease-in-out transition-all duration-300 z-30' }>
-                    <div className="h-full md:h-auto flex flex-col">
+                    <div className="w-11/12 mx-auto md:h-auto flex flex-col">
                         <div className="text-right md:hidden">
-                            <button type="button" className="outline-none focus:outline-none px-6 py-6" onClick={() => toggleSideBarHandler('close')}>
+                            <button type="button" className="outline-none focus:outline-none px-2 py-6" onClick={() => toggleSideBarHandler('close')}>
                                 <svg className="w-7 h-auto text-indigo-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
-                        <div className="w-11/12 mx-auto mt-5 md:mt-0 text-center md:text-right">
+                        <div className="w-full mt-5 md:mt-0 text-center md:text-right">
                             <Link
                                 to="/"
                                 className="block md:hidden font-bold text-3xl text-indigo-800 py-4"
