@@ -6,6 +6,11 @@ import ModalContent from '../components/ModalContent';
 import ModalHeader from '../components/ModalHeader';
 import ModalTitle from '../components/ModalTitle';
 import ModalBody from '../components/ModalBody';
+import Button from '../components/Button';
+import InputText from '../components/InputText';
+import FormGroup from '../components/FormGroup';
+import FormLabel from '../components/FormLabel';
+import FormField from '../components/FormField';
 
 
 function Customers() {
@@ -13,8 +18,19 @@ function Customers() {
     const [ isMore, setIsMore ] = useState(false);
     const [ page, setPage ] = useState(1);
 
-    const [ customer, setCustomer ] = useState({});
+    const initialCustomer = {
+        company: '',
+        first_name: '',
+        last_name: '',
+        job_title: '',
+        email_address: '',
+        business_phone: '',
+        address: ''
+    };
+
+    const [ customer, setCustomer ] = useState(initialCustomer);
     const [ showModal, setShowModal ] = useState(false);
+    const [ showAddModal, setShowAddModal ] = useState(false);
 
 
     useEffect(() => {
@@ -61,13 +77,54 @@ function Customers() {
 
     const closeModalHandler = () => {
         setShowModal(false);
-        setCustomer({});
+        setCustomer(initialCustomer);
+    }
+
+
+    const closeAddModalHandler = _ => {
+        setShowAddModal(false);
+    }
+
+
+    const onChangeHandler = event => {
+        setCustomer({
+            ...customer,
+            [event.target.name]: event.target.value
+        });
+    }
+
+
+    const storeNewCustomer = async() => {
+        setCustomers([]);
+
+        try {
+            await axios.post(`${API.STORE_CUSTOMERS}`, customer);
+
+            setPage(1);
+            _fetchCustomers(1);
+
+            setCustomer(initialCustomer);
+            setShowAddModal(false);
+
+        } catch (error) {
+            alert(error);
+        }
     }
 
 
     return (
         <>
-            <h1 className="text-2xl">Customers</h1>
+            <h1 className="text-2xl mb-3">Customers</h1>
+            <div className="mb-3">
+                <Button color="indigo" onClick={() => setShowAddModal(true)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span className="ml-2">
+                        New Customer
+                    </span>
+                </Button>
+            </div>
             <div className="mt-5 w-full overflow-x-auto">
                 <table className="w-full">
                     <thead>
@@ -119,6 +176,83 @@ function Customers() {
                     </div>
                 :   null
             }
+
+
+            <Modal isOpen={showAddModal}>
+                <ModalContent>
+                    <ModalHeader>
+                        <ModalTitle text="New Customer" />
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className="mb-10">
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Company Name
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="company" onChange={onChangeHandler} value={customer.company} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    First Name
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="first_name" onChange={onChangeHandler} value={customer.first_name} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Last Name
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="last_name" onChange={onChangeHandler} value={customer.last_name} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Job Title
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="job_title" onChange={onChangeHandler} value={customer.job_title} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Email Address
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="email" name="email_address" onChange={onChangeHandler} value={customer.email_address} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Business Phone
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="business_phone" onChange={onChangeHandler} value={customer.business_phone} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Address
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="address" onChange={onChangeHandler} value={customer.address} />
+                                </FormField>
+                            </FormGroup>
+                        </div>
+                        <div className="text-center mb-5">
+                            <Button color="red" onClick={closeAddModalHandler}>
+                                Cancel
+                            </Button>
+                            <Button color="indigo" onClick={storeNewCustomer}>
+                                Save Data
+                            </Button>
+                        </div>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
 
 
             <Modal isOpen={showModal}>
