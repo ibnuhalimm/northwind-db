@@ -15,7 +15,7 @@ function Modal(props) {
     return (
         <div className={ 'w-full h-full fixed inset-0 z-20 transition-opacity duration-500 ' + modalToggleClass }>
             <div className="absolute w-full h-full bg-gray-900 bg-opacity-80 z-20"></div>
-            <div class="relative h-full py-10 overflow-y-auto">
+            <div className="relative h-full py-10 overflow-y-auto">
                 {props.children}
             </div>
         </div>
