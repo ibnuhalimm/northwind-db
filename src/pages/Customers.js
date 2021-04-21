@@ -22,23 +22,23 @@ function Customers() {
     }, []);
 
 
-    const _fetchCustomers = (page) => {
+    const _fetchCustomers = async (page) => {
         setIsMore(false);
 
-        axios.get(API.GET_CUSTOMERS + '?order=first_name,asc&page=' + page + ',10')
-            .then(response => {
-                let data = response.data;
-                let allCustomers = [ ...customers, ...data.records ];
+        try {
+            const { data } = await axios.get(API.GET_CUSTOMERS + '?order=first_name,asc&page=' + page + ',10');
 
-                setCustomers(allCustomers);
-                if (allCustomers.length < data.results) {
-                    setIsMore(true);
-                    setPage(page += 1);
-                }
-            })
-            .catch(err => {
-                console.log(err.data);
-            });
+            const allCustomers = [ ...customers, ...data.records ];
+            setCustomers(allCustomers);
+            if (allCustomers.length < data.results) {
+                setIsMore(true);
+                setPage(page += 1);
+            }
+
+        } catch (error) {
+            alert(error);
+        }
+
     };
 
 
@@ -47,16 +47,15 @@ function Customers() {
     };
 
 
-    const _fetchSingleCustomer = (id) => {
-        axios.get(API.GET_CUSTOMERS + '/' + id)
-            .then(response => {
-                let customer = response.data;
-                setCustomer(customer);
-                setShowModal(true);
-            })
-            .catch(err => {
-                console.log(err.data);
-            });
+    const _fetchSingleCustomer = async (id) => {
+        try {
+            const { data } = await axios.get(API.GET_CUSTOMERS + '/' + id);
+            setCustomer(data);
+            setShowModal(true);
+
+        } catch (error) {
+            alert(error);
+        }
     };
 
 
