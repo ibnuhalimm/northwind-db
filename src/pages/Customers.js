@@ -11,12 +11,14 @@ import InputText from '../components/InputText';
 import FormGroup from '../components/FormGroup';
 import FormLabel from '../components/FormLabel';
 import FormField from '../components/FormField';
+import CustomerService from '../services/CustomerService';
 
 
 function Customers() {
     const [ customers, setCustomers ] = useState([]);
     const [ isMore, setIsMore ] = useState(false);
     const [ page, setPage ] = useState(1);
+    const [ newCustomerId, setNewCustomerId ] = useState(0);
 
     const initialCustomer = {
         company: '',
@@ -25,7 +27,10 @@ function Customers() {
         job_title: '',
         email_address: '',
         business_phone: '',
-        address: ''
+        address: '',
+        city: '',
+        state_province: '',
+        country_region: ''
     };
 
     const [ customer, setCustomer ] = useState(initialCustomer);
@@ -34,22 +39,34 @@ function Customers() {
 
 
     useEffect(() => {
-        _fetchCustomers(1);
-    }, []);
+        _fetchCustomers();
+    }, [page, newCustomerId]);
 
 
-    const _fetchCustomers = async (page) => {
+    const renderTable = (data, totalData) => {
+        if (page === 1) {
+            setCustomers(customers.splice(0, customers.length));
+        }
+
+        let allCustomers = [ ...customers, ...data ];
+
+        setCustomers(allCustomers);
         setIsMore(false);
+        if (allCustomers.length < totalData) {
+            setIsMore(true);
+        }
+    }
 
+
+    const loadMoreHandler = () => {
+        setPage(page + 1);
+    }
+
+
+    const _fetchCustomers = async () => {
         try {
-            const { data } = await axios.get(API.GET_CUSTOMERS + '?order=first_name,asc&page=' + page + ',10');
-
-            const allCustomers = [ ...customers, ...data.records ];
-            setCustomers(allCustomers);
-            if (allCustomers.length < data.results) {
-                setIsMore(true);
-                setPage(page += 1);
-            }
+            let { data, total } = await CustomerService.getAllCustomers(page);
+            renderTable(data, total);
 
         } catch (error) {
             alert(error);
@@ -65,8 +82,8 @@ function Customers() {
 
     const _fetchSingleCustomer = async (id) => {
         try {
-            const { data } = await axios.get(API.GET_CUSTOMERS + '/' + id);
-            setCustomer(data);
+            let customer = await CustomerService.getSingleCustomer(id);
+            setCustomer(customer);
             setShowModal(true);
 
         } catch (error) {
@@ -94,14 +111,13 @@ function Customers() {
     }
 
 
-    const storeNewCustomer = async() => {
-        setCustomers([]);
-
+    const storeNewCustomer = async () => {
         try {
-            await axios.post(`${API.STORE_CUSTOMERS}`, customer);
+            let customerId = 0;
 
             setPage(1);
-            _fetchCustomers(1);
+            customerId = await CustomerService.storeNewCustomer(customer);
+            setNewCustomerId(customerId);
 
             setCustomer(initialCustomer);
             setShowAddModal(false);
@@ -170,7 +186,7 @@ function Customers() {
                         <button
                             type="button"
                             className="outline-none focus:outline-none px-5 py-2 border border-solid bg-indigo-600 hover:bg-opacity-80 border-indigo-700 text-white shadow-md rounded-full text-sm transition duration-300"
-                            onClick={() => _fetchCustomers(page)}>
+                            onClick={(event) => loadMoreHandler()}>
                                 Load More
                         </button>
                     </div>
@@ -241,12 +257,36 @@ function Customers() {
                                     <InputText type="text" name="address" onChange={onChangeHandler} value={customer.address} />
                                 </FormField>
                             </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    City
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="city" onChange={onChangeHandler} value={customer.city} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    State / Province
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="state_province" onChange={onChangeHandler} value={customer.state_province} />
+                                </FormField>
+                            </FormGroup>
+                            <FormGroup>
+                                <FormLabel isRequired={true}>
+                                    Country / Region
+                                </FormLabel>
+                                <FormField>
+                                    <InputText type="text" name="country_region" onChange={onChangeHandler} value={customer.country_region} />
+                                </FormField>
+                            </FormGroup>
                         </div>
                         <div className="text-center mb-5">
                             <Button color="red" onClick={closeAddModalHandler}>
                                 Cancel
                             </Button>
-                            <Button color="indigo" onClick={storeNewCustomer}>
+                            <Button color="indigo" onClick={(event) => storeNewCustomer()}>
                                 Save Data
                             </Button>
                         </div>
