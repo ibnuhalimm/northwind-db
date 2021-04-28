@@ -1,6 +1,4 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import API from '../constant/API';
 import Modal from '../components/Modal';
 import ModalContent from '../components/ModalContent';
 import ModalHeader from '../components/ModalHeader';
