@@ -33,7 +33,9 @@ function Customers() {
 
     const [ customer, setCustomer ] = useState(initialCustomer);
     const [ showModal, setShowModal ] = useState(false);
-    const [ showAddModal, setShowAddModal ] = useState(false);
+    const [ showFormModal, setShowFormModal ] = useState(false);
+    const [ modalTitleText, setModalTitleText ] = useState('');
+    const [ mode, setMode ] = useState('create');
 
 
     useEffect(() => {
@@ -73,16 +75,14 @@ function Customers() {
     };
 
 
-    const detailCustomerHandler = (id) => {
-        _fetchSingleCustomer(id);
-    };
-
-
-    const _fetchSingleCustomer = async (id) => {
+    const editCustomerHandler = async (id) => {
         try {
             let customer = await CustomerService.getSingleCustomer(id);
             setCustomer(customer);
-            setShowModal(true);
+            setShowFormModal(true);
+
+            setModalTitleText('Edit Customer');
+            setMode('edit');
 
         } catch (error) {
             alert(error);
@@ -96,8 +96,16 @@ function Customers() {
     }
 
 
-    const closeAddModalHandler = _ => {
-        setShowAddModal(false);
+    const cancelSaveCustomerHandler = () => {
+        setShowFormModal(false);
+        setCustomer(initialCustomer);
+    }
+
+
+    const addNewCustomerHandler = () => {
+        setModalTitleText('New Customer');
+        setMode('create');
+        setShowFormModal(true);
     }
 
 
@@ -109,16 +117,25 @@ function Customers() {
     }
 
 
-    const storeNewCustomer = async () => {
+    const saveCustomerHandler = async () => {
         try {
             let customerId = 0;
-
             setPage(1);
-            customerId = await CustomerService.storeNewCustomer(customer);
-            setNewCustomerId(customerId);
+
+            if (mode === 'create') {
+                customerId = await CustomerService.storeNewCustomer(customer);
+                setNewCustomerId(customerId);
+            }
+
+            if (mode === 'edit') {
+                customerId = Math.floor(Math.random());
+
+                await CustomerService.updateCustomer(customer.id, customer);
+                setNewCustomerId(customerId);
+            }
 
             setCustomer(initialCustomer);
-            setShowAddModal(false);
+            setShowFormModal(false);
 
         } catch (error) {
             alert(error);
@@ -130,11 +147,13 @@ function Customers() {
         <>
             <h1 className="text-2xl mb-3">Customers</h1>
             <div className="mb-3">
-                <Button color="indigo" onClick={() => setShowAddModal(true)}>
+                <Button
+                    color="indigo"
+                    onClick={() => addNewCustomerHandler()}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    <span className="ml-2">
+                    <span className="ml-1">
                         New Customer
                     </span>
                 </Button>
@@ -168,8 +187,8 @@ function Customers() {
                                         <button
                                             type="button"
                                             className="outline-none focus:outline-none px-4 py-1 border border-solid bg-green-600 hover:bg-opacity-80 border-green-700 text-white shadow-md rounded-full text-sm transition duration-300"
-                                            onClick={() => detailCustomerHandler(customer.id)}>
-                                                Detail
+                                            onClick={() => editCustomerHandler(customer.id)}>
+                                                Edit
                                         </button>
                                     </td>
                                 </tr>
@@ -192,10 +211,10 @@ function Customers() {
             }
 
 
-            <Modal isOpen={showAddModal}>
+            <Modal isOpen={showFormModal}>
                 <ModalContent>
                     <ModalHeader>
-                        <ModalTitle text="New Customer" />
+                        <ModalTitle text={modalTitleText} />
                     </ModalHeader>
                     <ModalBody>
                         <div className="mb-10">
@@ -281,10 +300,14 @@ function Customers() {
                             </FormGroup>
                         </div>
                         <div className="text-center mb-5">
-                            <Button color="red" onClick={closeAddModalHandler}>
+                            <Button
+                                color="red"
+                                onClick={() => cancelSaveCustomerHandler()}>
                                 Cancel
                             </Button>
-                            <Button color="indigo" onClick={(event) => storeNewCustomer()}>
+                            <Button
+                                color="indigo"
+                                onClick={() => saveCustomerHandler()}>
                                 Save Data
                             </Button>
                         </div>

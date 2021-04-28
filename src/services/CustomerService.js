@@ -36,6 +36,17 @@ class CustomerService {
                 return Promise.reject(error);
             })
     }
+
+
+    static updateCustomer(id, data) {
+        return axios.put(`${API.STORE_CUSTOMER}/${id}`, data)
+            .then(response => {
+                return Promise.resolve(response.data);
+            })
+            .catch(error => {
+                return Promise.reject(error);
+            })
+    }
 }
 
 export default CustomerService;
