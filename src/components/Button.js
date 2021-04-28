@@ -38,6 +38,18 @@ const Button = props => {
         );
     }
 
+
+    if (color === 'gray') {
+        return (
+            <button
+                type={type ?? 'button'}
+                className="inline-flex items-center outline-none focus:outline-none px-4 py-2 mx-1 border border-solid bg-gray-600 hover:bg-opacity-80 border-gray-700 text-white shadow-md rounded-full text-sm transition duration-300"
+                onClick={onClick}>
+                    {props.children}
+            </button>
+        );
+    }
+
     return (
         <button
             type={type ?? 'button'}

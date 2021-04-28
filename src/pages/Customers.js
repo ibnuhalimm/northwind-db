@@ -10,6 +10,7 @@ import FormGroup from '../components/FormGroup';
 import FormLabel from '../components/FormLabel';
 import FormField from '../components/FormField';
 import CustomerService from '../services/CustomerService';
+import ButtonTable from '../components/ButtonTable';
 
 
 function Customers() {
@@ -32,7 +33,7 @@ function Customers() {
     };
 
     const [ customer, setCustomer ] = useState(initialCustomer);
-    const [ showModal, setShowModal ] = useState(false);
+    const [ showDeleteModal, setShowDeleteModal ] = useState(false);
     const [ showFormModal, setShowFormModal ] = useState(false);
     const [ modalTitleText, setModalTitleText ] = useState('');
     const [ mode, setMode ] = useState('create');
@@ -90,12 +91,6 @@ function Customers() {
     };
 
 
-    const closeModalHandler = () => {
-        setShowModal(false);
-        setCustomer(initialCustomer);
-    }
-
-
     const cancelSaveCustomerHandler = () => {
         setShowFormModal(false);
         setCustomer(initialCustomer);
@@ -119,23 +114,54 @@ function Customers() {
 
     const saveCustomerHandler = async () => {
         try {
-            let customerId = 0;
             setPage(1);
 
             if (mode === 'create') {
-                customerId = await CustomerService.storeNewCustomer(customer);
+                let customerId = await CustomerService.storeNewCustomer(customer);
                 setNewCustomerId(customerId);
             }
 
             if (mode === 'edit') {
-                customerId = Math.floor(Math.random());
+                let dummyCustomerId = Math.random() * 0.5;
 
                 await CustomerService.updateCustomer(customer.id, customer);
-                setNewCustomerId(customerId);
+                setNewCustomerId(dummyCustomerId);
             }
 
             setCustomer(initialCustomer);
             setShowFormModal(false);
+
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+
+    const deleteCustomerHandler = (id) => {
+        setCustomer({
+            ...customer,
+            ...{id: id}
+        });
+
+        setShowDeleteModal(true);
+    }
+
+
+    const cancelDeleteCustomerHandler = () => {
+        setCustomer(initialCustomer);
+        setShowDeleteModal(false);
+    }
+
+
+    const confirmDeleteCustomerHandler = async () => {
+        try {
+            let dummyCustomerId = Math.random() * 0.5;
+
+            await CustomerService.deleteCustomer(customer.id);
+            setNewCustomerId(dummyCustomerId);
+
+            setCustomer(initialCustomer);
+            setShowDeleteModal(false);
 
         } catch (error) {
             alert(error);
@@ -184,12 +210,18 @@ function Customers() {
                                     <td className="px-3 py-2">{customer.job_title}</td>
                                     <td className="px-3 py-2">{customer.business_phone}</td>
                                     <td className="px-3 py-2">
-                                        <button
+                                        <ButtonTable
                                             type="button"
-                                            className="outline-none focus:outline-none px-4 py-1 border border-solid bg-green-600 hover:bg-opacity-80 border-green-700 text-white shadow-md rounded-full text-sm transition duration-300"
+                                            color="green"
                                             onClick={() => editCustomerHandler(customer.id)}>
                                                 Edit
-                                        </button>
+                                        </ButtonTable>
+                                        <ButtonTable
+                                            type="button"
+                                            color="red"
+                                            onClick={() => deleteCustomerHandler(customer.id)}>
+                                                Delete
+                                        </ButtonTable>
                                     </td>
                                 </tr>
                             )
@@ -316,74 +348,26 @@ function Customers() {
             </Modal>
 
 
-            <Modal isOpen={showModal}>
-                <ModalContent>
+            <Modal isOpen={showDeleteModal}>
+                <ModalContent size="small">
                     <ModalHeader>
-                        <ModalTitle text="Detail" />
+                        <ModalTitle text="Delete Customer" />
                     </ModalHeader>
                     <ModalBody>
-                        <div>
-                            <table className="w-full">
-                                <tbody>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Company</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.company}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">First Name</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.first_name}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Last Name</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.last_name}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Job Title</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.job_title}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Email Address</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.email_address}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Business Phone</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.business_phone}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="px-4 py-2 w-1/3 text-gray-600">Address</td>
-                                        <td className="px-4 py-2 w-1 text-gray-600">:</td>
-                                        <td className="px-4 py-2">
-                                            {customer.address}, {customer.city}, {customer.state_province}, {customer.country_region}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div className="text-center">
+                            Are you sure to delete this customer data?
                         </div>
                         <div className="mt-10 text-center">
-                            <button
-                                type="button"
-                                className="outline-none focus:outline-none px-4 py-1 border border-solid bg-green-600 hover:bg-opacity-80 border-green-700 text-white shadow-md rounded-full transition duration-300"
-                                onClick={closeModalHandler}>
-                                    Close
-                            </button>
+                            <Button
+                                color="gray"
+                                onClick={() => cancelDeleteCustomerHandler()}>
+                                No
+                            </Button>
+                            <Button
+                                color="red"
+                                onClick={() => confirmDeleteCustomerHandler()}>
+                                Yes, Delete
+                            </Button>
                         </div>
                     </ModalBody>
                 </ModalContent>

@@ -47,6 +47,17 @@ class CustomerService {
                 return Promise.reject(error);
             })
     }
+
+
+    static deleteCustomer(id) {
+        return axios.delete(`${API.STORE_CUSTOMER}/${id}`)
+            .then(response => {
+                return Promise.resolve(response.data);
+            })
+            .catch(error => {
+                return Promise.reject(error);
+            })
+    }
 }
 
 export default CustomerService;
